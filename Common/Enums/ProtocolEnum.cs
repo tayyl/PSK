@@ -1,5 +1,6 @@
 ﻿namespace Common.Enums;
 public enum ProtocolEnum
 {
-    tcp
+    tcp,
+    udp
 }

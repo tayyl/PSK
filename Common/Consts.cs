@@ -9,5 +9,6 @@ namespace Common;
 public static class Consts
 {
     public const int TcpPort = 4000;
+    public const int UdpPort = 6000;
     public static IPAddress IpAddress => IPAddress.Loopback;
 }
