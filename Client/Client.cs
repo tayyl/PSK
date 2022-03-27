@@ -13,8 +13,10 @@ public class Client
     //jak liczyc czas odpowiedzi - dla kazdego utworzonego taska tworzyc stopwatch?
     readonly ILogger logger;
     readonly List<ICommunicator> communicators = new List<ICommunicator>();
+    readonly Stopwatch stopwatch;
     public Client(ILogger logger)
     {
+        stopwatch = new Stopwatch();
         this.logger = logger;
     }
     public async Task Start()
@@ -93,7 +95,7 @@ public class Client
                     communicators.Add(tcpCommunicator);
                     await tcpCommunicator.Start(OnCommand, OnDisconnect);
                 }
-
+                stopwatch.Restart();
                 await tcpCommunicator.Send(dataToSend);
                 break;
             case ProtocolEnum.udp:
@@ -103,13 +105,15 @@ public class Client
                     communicators.Add(udpCommunicator);
                     await udpCommunicator.Start(OnCommand, OnDisconnect);
                 }
+                stopwatch.Restart();
                 await udpCommunicator.Send(dataToSend);
                 break;
         }
     }
     Task OnCommand(ICommunicator communicator, string data)
     {
-        logger?.LogSuccess($"[{communicator.Protocol}] received answer from server:{data}");
+        stopwatch.Stop();
+        logger?.LogSuccess($"[{communicator.Protocol}] received answer from server:{data} ({stopwatch.ElapsedMilliseconds}ms)");
         return Task.CompletedTask;
     }
     void OnDisconnect(ICommunicator communicator)
