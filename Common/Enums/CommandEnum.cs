@@ -8,7 +8,8 @@ namespace Common.Enums
 {
     public enum CommandEnum
     {
-        send,
-        help
+        test,
+        help,
+        protocol
     }
 }

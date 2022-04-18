@@ -23,7 +23,6 @@ public class UdpListener : IListener
     {
         try
         {
-            cts = new CancellationTokenSource();
             var udpCommunicator = new UdpCommunicator(port, remoteIpEndpoint, logger);
 
             OnConnect(udpCommunicator);
@@ -38,7 +37,7 @@ public class UdpListener : IListener
     {
         try
         {
-            cts.Cancel();
+            cts?.Cancel();
         }
         catch (Exception ex)
         {

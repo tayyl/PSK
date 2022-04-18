@@ -6,7 +6,7 @@ public class PingServiceModule : IServiceModule
 {
     public ServiceModuleEnum ServiceModule => ServiceModuleEnum.ping;
     private Random random => new();
-    public async Task<string> AnswerCommand(string command)
+    public string AnswerCommand(string command)
     {
         var answerString = string.Empty;
         if(!int.TryParse(command, out var length))

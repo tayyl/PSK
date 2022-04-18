@@ -48,8 +48,7 @@ public class TcpCommunicator : ICommunicator
             logger?.LogError($"[{Protocol}] communicator failed to stop. Exception: {ex.Message}");
         }
     }
-
-    public async Task Start(Func<ICommunicator, string, Task> OnCommand, Action<ICommunicator> OnDisconnect)
+    public async Task Start(Func<ICommunicator, string, Task<string>> OnCommand, Action<ICommunicator> OnDisconnect)
     {
         try
         {
@@ -79,7 +78,7 @@ public class TcpCommunicator : ICommunicator
             logger?.LogError($"[{Protocol}] failed to send data to {iPAddress}:{port}. Exception: {e.Message}");
         }
     }
-    async Task ReceiveCommand(Func<ICommunicator, string,Task> OnCommand, Action<ICommunicator> OnDisconnect)
+    async Task ReceiveCommand(Func<ICommunicator, string, Task<string>> OnCommand, Action<ICommunicator> OnDisconnect)
     {
         try
         {
@@ -100,10 +99,9 @@ public class TcpCommunicator : ICommunicator
                     {
                         stringBuilder.Append(Encoding.UTF8.GetString(segment.Span.ToArray()));
                     }
-                    if (OnCommand != null)
-                    {
-                        await OnCommand.Invoke(this, stringBuilder.ToString());
-                    }
+                    var answer = await OnCommand.Invoke(this, stringBuilder.ToString());
+                    //tutaj powinienem wyslac odpowiedz po oncommand
+                    //await Send(answer); ??: jezeli tutaj bede zwracal to wpadne w petle, bo klient i serwer korzystaja z tego samego komunikatora
                 }
 
                 reader.AdvanceTo(buffer.Start, buffer.End);

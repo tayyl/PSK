@@ -14,7 +14,6 @@ public class Server
         new PingServiceModule()
     };
     readonly List<IListener> listeners;
-    CancellationTokenSource cts;
     public Server(List<IListener> listeners, ILogger logger)
     {
         this.logger = logger;
@@ -27,24 +26,35 @@ public class Server
             listener.Start(OnConnect);
             logger.LogInfo($"{listener.Protocol} listener has started");
         }
-        cts = new CancellationTokenSource();
         logger.LogInfo("Server started");
     }
-    async Task<string> AnswerCommand(string data)
+    //to powinienem przekazac do komunikatora
+
+    public async Task<string> OnCommand(ICommunicator communicator, string data)
     {
+        logger?.LogSuccess($"[{communicator.Protocol}] received command from client: {data}");
         var serviceAsString = data.Split(' ').ElementAtOrDefault(0);
-
-        if(!Enum.TryParse(serviceAsString, out ServiceModuleEnum serviceModule))
+        var answer = string.Empty;
+        if (!Enum.TryParse(serviceAsString, out ServiceModuleEnum serviceModule))
         {
-            return $"Unknown serivce: {serviceAsString}";
+            answer = $"Unknown serivce: {serviceAsString}";
         }
-        var service = services.FirstOrDefault(x => x.ServiceModule == serviceModule);
-        if(service == null)
+        else
         {
-            return $"Missing service {serviceModule}";
-        }
+            var service = services.FirstOrDefault(x => x.ServiceModule == serviceModule);
+            if (service == null)
+            {
+                answer = $"Required service is not turned on: {serviceModule}";
+            }
+            else
+            {
 
-        return await service.AnswerCommand(data.Split(' ').ElementAtOrDefault(1));
+                answer = service.AnswerCommand(data.Split(' ').ElementAtOrDefault(1));
+            }
+        }
+        await communicator.Send(answer); // ??
+
+        return answer;
     }
     public void Stop()
     {
@@ -69,10 +79,5 @@ public class Server
         logger?.LogInfo($"[{communicator.Protocol}] client disconnected");
         communicator.Stop();
         communicators.Remove(communicator);
-    }
-    async Task OnCommand(ICommunicator communicator, string command)
-    {
-        logger?.LogSuccess($"[{communicator.Protocol}] received command from client: {command}");
-        await communicator.Send(await AnswerCommand(command));
     }
 }
