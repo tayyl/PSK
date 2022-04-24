@@ -6,7 +6,7 @@ namespace ServiceModules {
     public class PingServiceModule : IServiceModule
     {
         public ServiceModuleEnum ServiceModule => ServiceModuleEnum.ping;
-        private Random random => new Random();
+        private Random random = new Random();
         public string AnswerCommand(string command)
         {
             var answerString = string.Empty;
