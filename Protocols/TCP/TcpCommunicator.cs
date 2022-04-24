@@ -73,18 +73,16 @@ namespace Protocols.TCP {
             try
             {
                 var reader = new StreamReader(tcpClient.GetStream());
-                var writer = new StreamWriter(tcpClient.GetStream());
                 var command = string.Empty;
                 while (!cts.IsCancellationRequested)
                 {
                     command = reader.ReadLine();
+                    if (command == null) continue;
                     logger?.LogSuccess($"[{Protocol}] received command from client: {command}");
                     var answer = OnCommand?.Invoke(command);
-                    writer.WriteLine(answer);
-                    writer.Flush();
+                    Send(answer);
                 }
                 reader.Close();
-                writer.Close();
             }
             catch (Exception e)
             {

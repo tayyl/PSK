@@ -26,18 +26,22 @@ namespace ServiceModules
             {
                 messageQueue.TryAdd(sender, new ConcurrentBag<string>());
             }
-
             switch (action)
             {
                 case "get":
                     var messages = new StringBuilder();
-                    foreach(var msg in messageQueue[sender])
+
+                    foreach (var msg in messageQueue[sender])
                     {
                         messages.Append($"\n{msg}");
                     }
                     var result = messages.ToString();
                     return !string.IsNullOrEmpty(result) ? result : $"There are no messages for user: {sender}";
                 case "msg":
+                    if (users.Count() == 0)
+                    {
+                        return "Missing message receiver, try: msg sender user message";
+                    }
                     try
                     {
                         foreach (var user in users)

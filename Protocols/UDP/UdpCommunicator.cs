@@ -71,6 +71,7 @@ namespace Protocols.UDP
                 try
                 {
                     data = Encoding.UTF8.GetString(udpClient.Receive(ref iPEndPoint));
+                    data = data.TrimEnd('\n');
                     logger?.LogSuccess($"[{Protocol}] received command from client: {data}");
                     var res = OnCommand.Invoke(data);
                     Send(res);
