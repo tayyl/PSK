@@ -1,5 +1,7 @@
-﻿namespace Common.Enums;
-public enum ServiceModuleEnum
+﻿namespace Common.Enums
 {
-    ping
+    public enum ServiceModuleEnum
+    {
+        ping
+    }
 }

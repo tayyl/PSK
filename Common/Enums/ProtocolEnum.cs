@@ -1,7 +1,9 @@
-﻿namespace Common.Enums;
-public enum ProtocolEnum
+﻿namespace Common.Enums
 {
-    none,
-    tcp,
-    udp
+    public enum ProtocolEnum
+    {
+        none,
+        tcp,
+        udp
+    }
 }
