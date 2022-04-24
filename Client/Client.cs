@@ -19,6 +19,7 @@ public class Client
     readonly ILogger logger;
     readonly Stopwatch stopwatch;
     ICommunicator communicator;
+    double meanTimeInMs;
     public Client(ILogger logger)
     {
         stopwatch = new Stopwatch();
@@ -64,11 +65,13 @@ public class Client
     }
     async Task TestProtocol(string dataToSend)
     {
-        for(var i = 0; i < 10; i++)
+        //czas calosci - wyciagnac srednia ??
+        for (var i = 0; i < 10; i++)
         {
             stopwatch.Restart();
             await communicator.Send(dataToSend);
         }
+        logger?.LogInfo($"Mean time: {meanTimeInMs/10} ms");
     }
     ICommunicator PickCommunicator(ProtocolEnum protocol)
     {
@@ -121,14 +124,14 @@ public class Client
         logger?.LogInfo($"Available services: {availableServices}");
     }
     
-    async Task<string> OnCommand(ICommunicator communicator, string data)
+    async Task OnCommand(ICommunicator communicator, string data)
     {
         stopwatch.Stop();
         logger?.LogSuccess($"[{communicator.Protocol}] received answer from server:{data} ({stopwatch.ElapsedMilliseconds}ms)");
-        return string.Empty;//??
     }
     void OnDisconnect(ICommunicator communicator)
     {
+        communicator.Stop();
         logger?.LogInfo($"[{communicator.Protocol}] disconnected.");
     }
 }

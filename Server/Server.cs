@@ -30,7 +30,7 @@ public class Server
     }
     //to powinienem przekazac do komunikatora
 
-    public async Task<string> OnCommand(ICommunicator communicator, string data)
+    public async Task OnCommand(ICommunicator communicator, string data)
     {
         logger?.LogSuccess($"[{communicator.Protocol}] received command from client: {data}");
         var serviceAsString = data.Split(' ').ElementAtOrDefault(0);
@@ -52,9 +52,7 @@ public class Server
                 answer = service.AnswerCommand(data.Split(' ').ElementAtOrDefault(1));
             }
         }
-        await communicator.Send(answer); // ??
-
-        return answer;
+        await communicator.Send(answer); 
     }
     public void Stop()
     {

@@ -40,7 +40,7 @@ public class UdpCommunicator : ICommunicator
         }
     }
 
-    public async Task Start(Func<ICommunicator, string, Task<string>> OnCommand, Action<ICommunicator> OnDisconnect)
+    public async Task Start(Func<ICommunicator, string, Task> OnCommand, Action<ICommunicator> OnDisconnect)
     {
         try
         {
@@ -66,15 +66,14 @@ public class UdpCommunicator : ICommunicator
             logger?.LogError($"[{Protocol}] failed to send data to {iPEndPoint}. Exception: {e.Message}");
         }
     }
-    async Task ReceiveCommand(Func<ICommunicator, string, Task<string>> OnCommand, Action<ICommunicator> OnDisconnect)
+    async Task ReceiveCommand(Func<ICommunicator, string, Task> OnCommand, Action<ICommunicator> OnDisconnect)
     {
         while (!cts.IsCancellationRequested)
         {
             try
             {
                 var data = await udpClient.ReceiveAsync();
-                var answer = await OnCommand.Invoke(this, Encoding.UTF8.GetString(data.Buffer));
-                //await Send(answer);
+                await OnCommand.Invoke(this, Encoding.UTF8.GetString(data.Buffer));
             }
             catch (Exception e)
             {
