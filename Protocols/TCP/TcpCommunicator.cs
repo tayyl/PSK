@@ -1,9 +1,10 @@
-﻿using Common.Enums;
+﻿using Common;
+using Common.Enums;
 using Common.Logger;
-using Protocols.Common;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
 using System.Net;
@@ -30,13 +31,6 @@ namespace Protocols.TCP {
             port = remoteEndPoint.Port;
             iPAddress = remoteEndPoint.Address;
         }
-        public TcpCommunicator(IPAddress iPAddress, int port, ILogger logger)
-        {
-            this.logger = logger;
-            this.iPAddress = iPAddress;
-            this.port = port;
-            tcpClient = new TcpClient();
-        }
         public void Stop()
         {
             try
@@ -49,87 +43,57 @@ namespace Protocols.TCP {
                 logger?.LogError($"[{Protocol}] communicator failed to stop. Exception: {ex.Message}");
             }
         }
-        public async Task Start(Func<ICommunicator, string, Task> OnCommand, Action<ICommunicator> OnDisconnect)
+        public void Start(Func<string, string> OnCommand, Action<ICommunicator> OnDisconnect)
         {
             try
             {
                 cts = new CancellationTokenSource();
-                if (!tcpClient.Connected)
-                {
-                    await tcpClient.ConnectAsync(iPAddress, port);
-                }
-
-                await Task.Factory.StartNew(async () => await ReceiveCommand(OnCommand, OnDisconnect), cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                Task.Factory.StartNew(() =>  ReceiveCommand(OnCommand, OnDisconnect), cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
             }
             catch (Exception ex)
             {
-                logger?.LogError($"[{Protocol}] communicator failed to start. Exception: {ex.Message}");
+                logger?.LogError($"[{ProtocolEnum.tcp}] communicator failed to start. Exception: {ex.Message}");
                 OnDisconnect?.Invoke(this);
             }
         }
-        public async Task Send(string data)
+        public void Send(string data)
         {
             try
             {
                 var buffer = Encoding.UTF8.GetBytes($"{data}\n");
-                await tcpClient.GetStream().WriteAsync(buffer, 0, buffer.Length,cts.Token);
+                tcpClient.GetStream().Write(buffer, 0, buffer.Length);
             }
             catch (Exception e)
             {
-                logger?.LogError($"[{Protocol}] failed to send data to {iPAddress}:{port}. Exception: {e.Message}");
+                logger?.LogError($"[{ProtocolEnum.tcp}] failed to send data to {iPAddress}:{port}. Exception: {e.Message}");
             }
         }
-        async Task ReceiveCommand(Func<ICommunicator, string, Task> OnCommand, Action<ICommunicator> OnDisconnect)
+        void ReceiveCommand(Func<string,string> OnCommand, Action<ICommunicator> OnDisconnect)
         {
             try
             {
-                //co w przypadku zerwania polaczenia?
-                var reader = PipeReader.Create(tcpClient.GetStream());
-                while (!cts.IsCancellationRequested)
+                var reader = new StreamReader(tcpClient.GetStream());
+                var writer = new StreamWriter(tcpClient.GetStream());
+                var command = string.Empty;
+                while (!(command = reader.ReadLine()).Equals("exit") || command == null)
                 {
-                    //czy przerwie?
-                    var result = await reader.ReadAsync(cts.Token);
-                    if (result.IsCompleted)
-                    {
-                        break;
-                    }
-                    var buffer = result.Buffer;
-
-                    while (TryReadLine(ref buffer, out var line))
-                    {
-                        var stringBuilder = new StringBuilder();
-                        foreach (var segment in line)
-                        {
-                            stringBuilder.Append(Encoding.UTF8.GetString(segment.Span.ToArray()));
-                        }
-                        await OnCommand.Invoke(this, stringBuilder.ToString());
-                    }
-
-                    reader.AdvanceTo(buffer.Start, buffer.End);
+                    logger?.LogSuccess($"[{Protocol}] received command from client: {command}");
+                    var answer = OnCommand?.Invoke(command);
+                    writer.WriteLine(answer);
+                    writer.Flush();
                 }
-                await reader.CompleteAsync();
+                reader.Close();
+                writer.Close();
             }
             catch (Exception e)
             {
                 logger?.LogError($"[{Protocol}] Failed to receive data. Exception {e.Message}");
+                Send(e.Message);
             }
             finally
             {
                 OnDisconnect?.Invoke(this);
             }
-        }
-        bool TryReadLine(ref ReadOnlySequence<byte> buffer, out ReadOnlySequence<byte> line)
-        {
-            var position = buffer.PositionOf((byte)'\n');
-            if (!position.HasValue)
-            {
-                line = default;
-                return false;
-            }
-
-            line = buffer.Slice(0, position.Value);
-            buffer = buffer.Slice(buffer.GetPosition(1, position.Value));
-            return true;
         }
     }
 }

@@ -2,14 +2,13 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Protocols.Common
+namespace Protocols
 {
     public interface ICommunicator
     {
         ProtocolEnum Protocol { get; }
-        Task Start(Func<ICommunicator, string, Task> OnCommand, Action<ICommunicator> OnDisconnect);
+        void Start(Func<string, string> OnCommand, Action<ICommunicator> OnDisconnect);
         void Stop();
-        Task Send(string data);
     }
 
 }

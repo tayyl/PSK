@@ -1,11 +1,8 @@
-﻿using Common;
+﻿using Client.ClientCommunicators;
+using Common;
 using Common.Enums;
 using Common.Logger;
-using Protocols.Common;
-using Protocols.TCP;
-using Protocols.UDP;
 using System;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,22 +11,13 @@ namespace Client
 {
     public class Client
     {
-        //w tasku powinna byc analiza komunikacji z jednym klientem, a nie kazdego polecenia
-        //raczej w ramach jednego "polaczenia" powinnismy wysylac jedno - lepiej czekac
-        //klient powinien byc prosty 
-        //testy danej uslugi - np. dla pinga 10 testow, na jednym protokole + statystyki
-        //kazda funkcja testujaca powinna byc prosta i jednowatkowa - dsotaje medium 
-        //rozdzielic protokol od tego co ma robic, czyli np. tcp "enter" i wtedy dzialamy w ramach tcp
         readonly ILogger logger;
-        readonly Stopwatch stopwatch;
-        ICommunicator communicator;
-        double meanTimeInMs;
+        ClientCommunicatorBase communicator;
         public Client(ILogger logger)
         {
-            stopwatch = new Stopwatch();
             this.logger = logger;
         }
-        public async Task Start()
+        public void Start()
         {
             logger.LogInfo("Client started");
             logger?.LogInfo("Type 'help' to list commands");
@@ -45,18 +33,19 @@ namespace Client
                         case CommandEnum.help:
                             ShowHelp();
                             break;
-                        case CommandEnum.test:
-                            if (communicator == null)
-                            {
-                                logger?.LogInfo("Communicator is not picked, type: protocol protocolName");
-                                break;
-                            }
-                            await TestProtocol(command.dataToSend);
+                        case CommandEnum.ping:
+                        case CommandEnum.ftp:
+                        case CommandEnum.chat:
+                        case CommandEnum.configuration:
+                            ProcessCommand(command.command, command.dataToSend);
                             break;
                         case CommandEnum.protocol:
-                            communicator = PickCommunicator(command.protocol);
-                            await communicator.Start(OnCommand, OnDisconnect);
-                            logger?.LogInfo($"{communicator.Protocol} has been picked");
+                            communicator?.Dispose();
+                            communicator = PickProtocol(command.protocol);
+                            logger?.LogInfo($"{command.protocol} has been picked");
+                            break;
+                        default:
+                            logger?.LogInfo($"Command not recognized");
                             break;
                     }
                 }
@@ -67,24 +56,43 @@ namespace Client
                 }
             }
         }
-        async Task TestProtocol(string dataToSend)
+        void ProcessCommand(CommandEnum command, string dataToSend)
         {
-            //czas calosci - wyciagnac srednia ??
-            for (var i = 0; i < 10; i++)
+            try
             {
-                stopwatch.Restart();
-                await communicator.Send(dataToSend);
+                var answer = string.Empty;
+                switch (command)
+                {
+                    case CommandEnum.ping:
+                        answer = communicator.Ping(dataToSend);
+                        break;
+                    case CommandEnum.ftp:
+                        answer = communicator.FTP(dataToSend);
+                        break;
+                    case CommandEnum.chat:
+                        answer = communicator.Chat(dataToSend);
+                        break;
+                    case CommandEnum.configuration:
+                        answer = communicator.Configuration(dataToSend);
+                        break;
+                    default:
+                        logger?.LogInfo($"Missing service {command}");
+                        break;
+                }
+                logger?.LogInfo(answer);
+            }catch (Exception ex)
+            {
+                logger?.LogError($"Processing command failed, exception: {ex.Message}");
             }
-            logger?.LogInfo($"Mean time: {meanTimeInMs / 10} ms");
         }
-        ICommunicator PickCommunicator(ProtocolEnum protocol)
+        ClientCommunicatorBase PickProtocol(ProtocolEnum protocol)
         {
             switch (protocol)
             {
                 case ProtocolEnum.tcp:
-                    return new TcpCommunicator(Consts.IpAddress, Consts.TcpPort, logger);
+                    return new TcpClientCommunicator(logger);
                 case ProtocolEnum.udp:
-                    return new UdpCommunicator(Consts.UdpPort + 1, new System.Net.IPEndPoint(Consts.IpAddress, Consts.UdpPort), logger);
+                    return new UdpClientCommunicator(logger);
                 default: throw new NotImplementedException();
             }
         }
@@ -93,7 +101,7 @@ namespace Client
             var commands = userInput?.Split(' ');
             var commandAsString = commands?.ElementAtOrDefault(0);
             var actionAsString = commands?.ElementAtOrDefault(1);
-            var dataToSendAsString = string.Join(" ", commands?.Skip(1));
+            var dataToSendAsString = string.Join(" ", commands);
 
             if (Enum.TryParse(actionAsString, out CommandEnum help) && help == CommandEnum.help)
             {
@@ -109,6 +117,7 @@ namespace Client
             {
                 throw new Exception($"Protocol not recognized");
             }
+
             return (protocol, command, dataToSendAsString);
         }
         void ShowHelp()
@@ -128,15 +137,5 @@ namespace Client
             logger?.LogInfo($"Available services: {availableServices}");
         }
 
-        async Task OnCommand(ICommunicator communicator, string data)
-        {
-            stopwatch.Stop();
-            logger?.LogSuccess($"[{communicator.Protocol}] received answer from server:{data} ({stopwatch.ElapsedMilliseconds}ms)");
-        }
-        void OnDisconnect(ICommunicator communicator)
-        {
-            communicator.Stop();
-            logger?.LogInfo($"[{communicator.Protocol}] disconnected.");
-        }
     }
 }

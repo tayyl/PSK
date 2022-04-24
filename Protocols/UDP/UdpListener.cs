@@ -1,6 +1,5 @@
 ﻿using Common.Enums;
 using Common.Logger;
-using Protocols.Common;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -14,7 +13,6 @@ namespace Protocols.UDP
 
         readonly ILogger logger;
         readonly int port;
-        CancellationTokenSource cts;
         IPEndPoint remoteIpEndpoint;
         public UdpListener(int port, IPEndPoint iPEndPoint, ILogger logger)
         {
@@ -40,7 +38,7 @@ namespace Protocols.UDP
         {
             try
             {
-                cts?.Cancel();
+
             }
             catch (Exception ex)
             {

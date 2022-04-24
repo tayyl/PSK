@@ -1,11 +1,6 @@
 ﻿using Common.Enums;
 using Common.Logger;
-using Protocols.Common;
 using System;
-using System.Buffers;
-using System.Collections.Generic;
-using System.IO.Pipelines;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -21,7 +16,7 @@ namespace Protocols.UDP
         CancellationTokenSource cts;
         readonly ILogger logger;
         UdpClient udpClient;
-        readonly IPEndPoint iPEndPoint;
+        IPEndPoint iPEndPoint;
         readonly int port;
         public UdpCommunicator(int port, IPEndPoint iPEndPoint, ILogger logger)
         {
@@ -42,13 +37,13 @@ namespace Protocols.UDP
             }
         }
 
-        public async Task Start(Func<ICommunicator, string, Task> OnCommand, Action<ICommunicator> OnDisconnect)
+        public void Start(Func<string, string> OnCommand, Action<ICommunicator> OnDisconnect)
         {
             try
             {
                 cts = new CancellationTokenSource();
                 udpClient = new UdpClient(port);
-                await Task.Factory.StartNew(async () => await ReceiveCommand(OnCommand, OnDisconnect), cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                Task.Factory.StartNew(() => ReceiveCommand(OnCommand, OnDisconnect), cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
             }
             catch (Exception ex)
             {
@@ -56,30 +51,33 @@ namespace Protocols.UDP
                 OnDisconnect?.Invoke(this);
             }
         }
-        public async Task Send(string data)
+        public void Send(string data)
         {
             try
             {
                 var buffer = Encoding.UTF8.GetBytes($"{data}\n");
-                await udpClient.SendAsync(buffer, buffer.Length, iPEndPoint);
+                udpClient.Send(buffer, buffer.Length, iPEndPoint);
             }
             catch (Exception e)
             {
                 logger?.LogError($"[{Protocol}] failed to send data to {iPEndPoint}. Exception: {e.Message}");
             }
         }
-        async Task ReceiveCommand(Func<ICommunicator, string, Task> OnCommand, Action<ICommunicator> OnDisconnect)
+        void ReceiveCommand(Func<string, string> OnCommand, Action<ICommunicator> OnDisconnect)
         {
             while (!cts.IsCancellationRequested)
             {
                 try
                 {
-                    var data = await udpClient.ReceiveAsync();
-                    await OnCommand.Invoke(this, Encoding.UTF8.GetString(data.Buffer));
+                    var data = Encoding.UTF8.GetString(udpClient.Receive(ref iPEndPoint));
+                    logger?.LogSuccess($"[{Protocol}] received command from client: {data}");
+                    var res = OnCommand.Invoke(data);
+                    Send(res);
                 }
                 catch (Exception e)
                 {
                     logger?.LogError($"[{Protocol}] Failed to receive data. Exception {e.Message}");
+                    Send(e.Message);
                 }
             }
             OnDisconnect?.Invoke(this);

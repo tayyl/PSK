@@ -1,6 +1,6 @@
 ﻿using Common.Enums;
 
-namespace Common
+namespace ServiceModules
 {
     public interface IServiceModule
     {

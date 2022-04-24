@@ -1,7 +1,7 @@
 ﻿using Common.Enums;
 using System;
 
-namespace Protocols.Common
+namespace Protocols
 {
     public interface IListener
     {

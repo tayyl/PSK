@@ -1,6 +1,6 @@
 ﻿using Common;
 using Common.Logger;
-using Protocols.Common;
+using Protocols;
 using Protocols.TCP;
 using Protocols.UDP;
 using System.Collections.Generic;
@@ -18,7 +18,7 @@ namespace ServerProgram
             var consoleLogger = new ConsoleLogger();
             var listeners = new List<IListener>
             {
-                new Protocols.TCP.TcpListener(Consts.TcpPort, Consts.IpAddress, consoleLogger),
+                new TcpListener(Consts.TcpPort, Consts.IpAddress, consoleLogger),
                 new UdpListener(Consts.UdpPort, new IPEndPoint(Consts.IpAddress,Consts.UdpPort+1), consoleLogger)
             };
             var server = new Server.Server(listeners, consoleLogger);

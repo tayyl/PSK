@@ -1,7 +1,6 @@
-﻿using Common;
-using Common.Enums;
+﻿using Common.Enums;
 using Common.Logger;
-using Protocols.Common;
+using Protocols;
 using ServiceModules;
 using System;
 using System.Collections.Generic;
@@ -32,11 +31,9 @@ namespace Server {
             }
             logger.LogInfo("Server started");
         }
-        //to powinienem przekazac do komunikatora
 
-        public async Task OnCommand(ICommunicator communicator, string data)
+        public string OnCommand(string data)
         {
-            logger?.LogSuccess($"[{communicator.Protocol}] received command from client: {data}");
             var serviceAsString = data.Split(' ').ElementAtOrDefault(0);
             var answer = string.Empty;
             if (!Enum.TryParse(serviceAsString, out ServiceModuleEnum serviceModule))
@@ -52,11 +49,10 @@ namespace Server {
                 }
                 else
                 {
-
                     answer = service.AnswerCommand(data.Split(' ').ElementAtOrDefault(1));
                 }
             }
-            await communicator.Send(answer);
+            return answer;
         }
         public void Stop()
         {

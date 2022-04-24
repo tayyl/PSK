@@ -2,8 +2,11 @@
 {
     public enum CommandEnum
     {
-        test,
         help,
-        protocol
+        protocol,
+        ping,
+        chat,
+        ftp,
+        configuration
     }
 }

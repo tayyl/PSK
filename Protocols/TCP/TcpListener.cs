@@ -1,6 +1,5 @@
 ﻿using Common.Enums;
 using Common.Logger;
-using Protocols.Common;
 using System;
 using System.Net;
 using System.Threading;
@@ -31,13 +30,13 @@ namespace Protocols.TCP
                 listener.Start();
                 cts = new CancellationTokenSource();
 
-                async Task CommandListener()
+                void CommandListener()
                 {
                     while (!cts.IsCancellationRequested)
                     {
                         try
                         {
-                            var client = await listener.AcceptTcpClientAsync();
+                            var client = listener.AcceptTcpClient();
                             var tcpCommunicator = new TcpCommunicator(client, logger);
 
                             OnConnect(tcpCommunicator);
