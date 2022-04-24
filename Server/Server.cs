@@ -35,7 +35,7 @@ namespace Server {
 
         public string OnCommand(string data)
         {
-            var serviceAsString = data.Split(' ').ElementAtOrDefault(0);
+            var serviceAsString = data?.Split(' ').ElementAtOrDefault(0);
             var answer = string.Empty;
             if (!Enum.TryParse(serviceAsString, out ServiceModuleEnum serviceModule))
             {

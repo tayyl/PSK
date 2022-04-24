@@ -8,12 +8,6 @@ using System.Threading.Tasks;
 
 namespace ServiceModules
 {
-    /*
-     msg nicknames mynickname text...
-     get mynickname
-     who
-
-     */
     public class ChatServiceModule : IServiceModule
     {
         ConcurrentDictionary<string, ConcurrentBag<string>> messageQueue = new ConcurrentDictionary<string, ConcurrentBag<string>>();

@@ -75,8 +75,9 @@ namespace Protocols.TCP {
                 var reader = new StreamReader(tcpClient.GetStream());
                 var writer = new StreamWriter(tcpClient.GetStream());
                 var command = string.Empty;
-                while (!(command = reader.ReadLine()).Equals("exit") || command == null)
+                while (!cts.IsCancellationRequested)
                 {
+                    command = reader.ReadLine();
                     logger?.LogSuccess($"[{Protocol}] received command from client: {command}");
                     var answer = OnCommand?.Invoke(command);
                     writer.WriteLine(answer);

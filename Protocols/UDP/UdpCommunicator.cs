@@ -65,11 +65,12 @@ namespace Protocols.UDP
         }
         void ReceiveCommand(Func<string, string> OnCommand, Action<ICommunicator> OnDisconnect)
         {
+            string data = null;
             while (!cts.IsCancellationRequested)
             {
                 try
                 {
-                    var data = Encoding.UTF8.GetString(udpClient.Receive(ref iPEndPoint));
+                    data = Encoding.UTF8.GetString(udpClient.Receive(ref iPEndPoint));
                     logger?.LogSuccess($"[{Protocol}] received command from client: {data}");
                     var res = OnCommand.Invoke(data);
                     Send(res);
