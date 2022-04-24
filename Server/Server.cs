@@ -14,7 +14,8 @@ namespace Server {
         List<ICommunicator> communicators = new List<ICommunicator>();
         List<IServiceModule> services = new List<IServiceModule>()
         {
-            new PingServiceModule()
+            new PingServiceModule(),
+            new ChatServiceModule()
         };
         readonly List<IListener> listeners;
         public Server(List<IListener> listeners, ILogger logger)
@@ -49,7 +50,8 @@ namespace Server {
                 }
                 else
                 {
-                    answer = service.AnswerCommand(data.Split(' ').ElementAtOrDefault(1));
+                    var dataWithoutService = string.Join(" ",data.Split(' ').Skip(1));
+                    answer = service.AnswerCommand(dataWithoutService);
                 }
             }
             return answer;

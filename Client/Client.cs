@@ -79,8 +79,9 @@ namespace Client
                         logger?.LogInfo($"Missing service {command}");
                         break;
                 }
-                logger?.LogInfo(answer);
-            }catch (Exception ex)
+                logger?.LogSuccess(answer);
+            }
+            catch (Exception ex)
             {
                 logger?.LogError($"Processing command failed, exception: {ex.Message}");
             }

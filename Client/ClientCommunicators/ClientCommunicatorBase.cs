@@ -32,7 +32,7 @@ namespace Client.ClientCommunicators
                 meanTime += stopwatch.ElapsedMilliseconds;
                 logger?.LogSuccess($"Received response from server: {res} [{stopwatch.ElapsedMilliseconds}ms]");
             }
-            return $"Send {requestAmount} requests, mean time to receive response: {meanTime}";
+            return $"Send {requestAmount} requests, mean time to receive response: {meanTime}ms";
         }
         public string FTP(string dataToSend)
         {
@@ -44,7 +44,8 @@ namespace Client.ClientCommunicators
         }
         public string Chat(string dataToSend)
         {
-            throw new NotImplementedException();
+            SendRequest(dataToSend);
+            return ReceiveResponse();
         }
 
         public abstract void Dispose();

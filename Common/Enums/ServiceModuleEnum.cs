@@ -2,6 +2,9 @@
 {
     public enum ServiceModuleEnum
     {
-        ping
+        ping,
+        chat,
+        ftp,
+        configuration
     }
 }

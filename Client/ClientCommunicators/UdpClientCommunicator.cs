@@ -26,7 +26,7 @@ namespace Client.ClientCommunicators
             string response = null;
             try
             {
-                response= Encoding.UTF8.GetString(udpClient.Receive(ref iPEndPoint));
+                response = Encoding.UTF8.GetString(udpClient.Receive(ref iPEndPoint));
             }
             catch (Exception e)
             {
@@ -47,7 +47,7 @@ namespace Client.ClientCommunicators
                 logger?.LogError($"[UdpClientCommunicator] failed to send data to {iPEndPoint}. Exception: {e.Message}");
             }
         }
-     
+
         public override void Dispose()
         {
             udpClient.Close();
