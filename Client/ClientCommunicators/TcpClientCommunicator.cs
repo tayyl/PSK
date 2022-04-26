@@ -2,6 +2,7 @@
 using Common.Logger;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
 using System.Net;
@@ -30,7 +31,7 @@ namespace Client.ClientCommunicators
             tcpClient.Dispose();
         }
 
-        public override string ReceiveResponse()
+        public override string ReadLine()
         {
             string response = null;
             try
@@ -45,6 +46,7 @@ namespace Client.ClientCommunicators
                     response += Encoding.ASCII.GetString(responseBytes, 0, bytes);
                 }
                 while (stream.DataAvailable);
+
             }
             catch (Exception e)
             {
@@ -53,7 +55,7 @@ namespace Client.ClientCommunicators
             return response;
         }
 
-        public override void SendRequest(string dataToSend)
+        public override void WriteLine(string dataToSend)
         {
             try
             {

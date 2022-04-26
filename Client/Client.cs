@@ -1,4 +1,5 @@
 ﻿using Client.ClientCommunicators;
+using Client.QAClients;
 using Common;
 using Common.Enums;
 using Common.Logger;
@@ -36,7 +37,6 @@ namespace Client
                         case CommandEnum.ping:
                         case CommandEnum.ftp:
                         case CommandEnum.chat:
-                        case CommandEnum.configuration:
                             ProcessCommand(command.command, command.dataToSend);
                             break;
                         case CommandEnum.protocol:
@@ -60,26 +60,24 @@ namespace Client
         {
             try
             {
+                QAClientBase qaClient = null;
                 var answer = string.Empty;
                 switch (command)
                 {
                     case CommandEnum.ping:
-                        answer = communicator.Ping(dataToSend);
+                        qaClient = new PingClient(communicator, logger);
                         break;
                     case CommandEnum.ftp:
-                        answer = communicator.FTP(dataToSend);
+                        qaClient = new FTPClient(communicator, logger);
                         break;
                     case CommandEnum.chat:
-                        answer = communicator.Chat(dataToSend);
-                        break;
-                    case CommandEnum.configuration:
-                        answer = communicator.Configuration(dataToSend);
+                        qaClient = new ChatClient(communicator, logger);
                         break;
                     default:
                         logger?.LogInfo($"Missing service {command}");
-                        break;
+                        return;
                 }
-                logger?.LogSuccess(answer);
+                logger?.LogSuccess(qaClient.QA(dataToSend));
             }
             catch (Exception ex)
             {

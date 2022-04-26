@@ -21,7 +21,7 @@ namespace Client.ClientCommunicators
             udpClient = new UdpClient(port);
         }
 
-        public override string ReceiveResponse()
+        public override string ReadLine()
         {
             string response = null;
             try
@@ -35,7 +35,7 @@ namespace Client.ClientCommunicators
             return response;
         }
 
-        public override void SendRequest(string dataToSend)
+        public override void WriteLine(string dataToSend)
         {
             try
             {

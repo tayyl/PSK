@@ -18,12 +18,12 @@ namespace Client.ClientCommunicators
             throw new NotImplementedException();
         }
 
-        public override string ReceiveResponse()
+        public override string ReadLine()
         {
             throw new NotImplementedException();
         }
 
-        public override void SendRequest(string dataToSend)
+        public override void WriteLine(string dataToSend)
         {
             throw new NotImplementedException();
         }

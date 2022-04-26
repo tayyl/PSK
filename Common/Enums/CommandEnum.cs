@@ -7,6 +7,5 @@
         ping,
         chat,
         ftp,
-        configuration
     }
 }
