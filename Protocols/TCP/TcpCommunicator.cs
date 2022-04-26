@@ -70,19 +70,32 @@ namespace Protocols.TCP {
         }
         void ReceiveCommand(Func<string,string> OnCommand, Action<ICommunicator> OnDisconnect)
         {
+
             try
             {
-                var reader = new StreamReader(tcpClient.GetStream());
                 var command = string.Empty;
                 while (!cts.IsCancellationRequested)
                 {
-                    command = reader.ReadLine();
+                    var responseBytes = new byte[1024];
+                    var bytes = 0;
+                    var stream = tcpClient.GetStream();
+                    do
+                    {
+                        bytes = stream.Read(responseBytes, 0, responseBytes.Length);
+                        command += Encoding.ASCII.GetString(responseBytes, 0, bytes);
+                    }
+                    while (stream.DataAvailable);
+
                     if (command == null) continue;
+                    command=command.Trim('\n');
+
                     logger?.LogSuccess($"[{Protocol}] received command from client: {command}");
                     var answer = OnCommand?.Invoke(command);
                     Send(answer);
+
+                    bytes = 0;
+                    command = string.Empty;
                 }
-                reader.Close();
             }
             catch (Exception e)
             {
