@@ -31,7 +31,7 @@ namespace Client.ClientCommunicators
             tcpClient.Dispose();
         }
 
-        public override string ReadLine()
+        public override string ReadLine() 
         {
             string response = null;
             try

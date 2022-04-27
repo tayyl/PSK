@@ -60,6 +60,10 @@ namespace Client
         {
             try
             {
+                if (communicator == null) { 
+                    logger?.LogError("Protocol is not picked, use: protocol NAME, ex. protocol tcp");
+                    return;
+                }
                 QAClientBase qaClient = null;
                 var answer = string.Empty;
                 switch (command)

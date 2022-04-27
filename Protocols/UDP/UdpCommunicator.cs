@@ -55,12 +55,14 @@ namespace Protocols.UDP
         {
             try
             {
+                //fragmentacja
                 var buffer = Encoding.UTF8.GetBytes($"{data}\n");
                 udpClient.Send(buffer, buffer.Length, iPEndPoint);
             }
             catch (Exception e)
             {
                 logger?.LogError($"[{Protocol}] failed to send data to {iPEndPoint}. Exception: {e.Message}");
+
             }
         }
         void ReceiveCommand(Func<string, string> OnCommand, Action<ICommunicator> OnDisconnect)
@@ -70,9 +72,16 @@ namespace Protocols.UDP
             {
                 try
                 {
+                    
                     data = Encoding.UTF8.GetString(udpClient.Receive(ref iPEndPoint));
-                    data = data.TrimEnd('\n');
-                    logger?.LogSuccess($"[{Protocol}] received command from client: {data}");
+                    //jezeli nie konczy sie \n to do kolejki i continue
+
+                    if (data[data.Length - 1] == '\n') continue;
+
+                    //skonczyl sie \n - zlepiamy wiadomosc i obslugujemy
+                    //zlepiona wiadomosc usuwana z slownika (concurrent)
+
+                    logger?.LogSuccess($"[{Protocol}] received command from client[{iPEndPoint}]: {data}");
                     var res = OnCommand.Invoke(data);
                     Send(res);
                 }

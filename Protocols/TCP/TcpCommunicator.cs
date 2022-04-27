@@ -66,6 +66,7 @@ namespace Protocols.TCP {
             catch (Exception e)
             {
                 logger?.LogError($"[{ProtocolEnum.tcp}] failed to send data to {iPAddress}:{port}. Exception: {e.Message}");
+                
             }
         }
         void ReceiveCommand(Func<string,string> OnCommand, Action<ICommunicator> OnDisconnect)
@@ -89,7 +90,7 @@ namespace Protocols.TCP {
                     if (command == null) continue;
                     command=command.Trim('\n');
 
-                    logger?.LogSuccess($"[{Protocol}] received command from client: {command}");
+                    logger?.LogSuccess($"[{Protocol}] received command from client[{tcpClient.Client.RemoteEndPoint}]: {command}");
                     var answer = OnCommand?.Invoke(command);
                     Send(answer);
 

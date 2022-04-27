@@ -10,15 +10,21 @@ using System.Threading.Tasks;
 
 namespace Client.ClientCommunicators
 {
+    //schowek na pakiety - slownik
+    //rozrozniac na \n
+    
+    //klient powinien miec jedną kolejkę - moze byc lista 
     public class UdpClientCommunicator : ClientCommunicatorBase
     {
         UdpClient udpClient;
         IPEndPoint iPEndPoint;
-        readonly int port = Consts.UdpPort + 1;
+        const int port = Consts.UdpPort + 1;
         public UdpClientCommunicator(ILogger logger) : base(logger)
         {
+            var rand = new Random();
+           
             iPEndPoint = new System.Net.IPEndPoint(Consts.IpAddress, Consts.UdpPort);
-            udpClient = new UdpClient(port);
+            udpClient = new UdpClient(port + rand.Next(2, 1000));
         }
 
         public override string ReadLine()
@@ -39,7 +45,13 @@ namespace Client.ClientCommunicators
         {
             try
             {
+
+                //fragmentacja i wysylanie wielu rzeczy na raz
+                //konczymy kazdy fragment \n
+                //ostatniego nie konczymy \n - server bedzie wiedzial ze ma wszystko
                 var buffer = Encoding.UTF8.GetBytes($"{dataToSend}\n");
+                
+                
                 udpClient.Send(buffer, buffer.Length, iPEndPoint);
             }
             catch (Exception e)
