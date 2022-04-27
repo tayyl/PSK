@@ -12,47 +12,55 @@ namespace Client.ClientCommunicators
 {
     //schowek na pakiety - slownik
     //rozrozniac na \n
-    
+
     //klient powinien miec jedną kolejkę - moze byc lista 
     public class UdpClientCommunicator : ClientCommunicatorBase
     {
         UdpClient udpClient;
         IPEndPoint iPEndPoint;
-        const int port = Consts.UdpPort + 1;
+        MessageQueue<string, string> queue;
         public UdpClientCommunicator(ILogger logger) : base(logger)
         {
+            queue = new MessageQueue<string, string>();
             var rand = new Random();
-           
+
             iPEndPoint = new System.Net.IPEndPoint(Consts.IpAddress, Consts.UdpPort);
-            udpClient = new UdpClient(port + rand.Next(2, 1000));
+            udpClient = new UdpClient(Consts.UdpPort + rand.Next(2, 1000));
         }
 
         public override string ReadLine()
         {
-            string response = null;
+            var response = string.Empty;
             try
             {
-                response = Encoding.UTF8.GetString(udpClient.Receive(ref iPEndPoint));
+                do
+                {
+                    response = Encoding.UTF8.GetString(udpClient.Receive(ref iPEndPoint));
+                    queue.Add(iPEndPoint.ToString(), response);
+                } while (response.Last() != '\n');
             }
             catch (Exception e)
             {
                 logger?.LogError($"[UdpClientCommunicator] Failed to receive data. Exception {e.Message}");
             }
-            return response;
+            var result = queue.GetAllMessages(iPEndPoint.ToString());
+            queue.RemoveAllMessages(iPEndPoint.ToString());
+            return result;
         }
 
         public override void WriteLine(string dataToSend)
         {
             try
             {
+                var buffer = Encoding.UTF8.GetBytes($"{dataToSend}\n").AsSpan();
+                var lastIndex = 0;
 
-                //fragmentacja i wysylanie wielu rzeczy na raz
-                //konczymy kazdy fragment \n
-                //ostatniego nie konczymy \n - server bedzie wiedzial ze ma wszystko
-                var buffer = Encoding.UTF8.GetBytes($"{dataToSend}\n");
-                
-                
-                udpClient.Send(buffer, buffer.Length, iPEndPoint);
+                do
+                {
+                    var fragmentBuffer = buffer.Slice(lastIndex, Math.Min(buffer.Length - lastIndex, Consts.DatagramSize + lastIndex)).ToArray();
+                    udpClient.Send(fragmentBuffer, fragmentBuffer.Length, iPEndPoint);
+                    lastIndex += Consts.DatagramSize;
+                } while (lastIndex < buffer.Length);
             }
             catch (Exception e)
             {

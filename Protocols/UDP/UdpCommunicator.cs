@@ -1,6 +1,8 @@
-﻿using Common.Enums;
+﻿using Common;
+using Common.Enums;
 using Common.Logger;
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -18,11 +20,13 @@ namespace Protocols.UDP
         UdpClient udpClient;
         IPEndPoint iPEndPoint;
         readonly int port;
+        MessageQueue<string, string> queue;
         public UdpCommunicator(int port, IPEndPoint iPEndPoint, ILogger logger)
         {
             this.logger = logger;
             this.iPEndPoint = iPEndPoint;
             this.port = port;
+            queue = new MessageQueue<string, string>();
         }
         public void Stop()
         {
@@ -55,9 +59,15 @@ namespace Protocols.UDP
         {
             try
             {
-                //fragmentacja
-                var buffer = Encoding.UTF8.GetBytes($"{data}\n");
-                udpClient.Send(buffer, buffer.Length, iPEndPoint);
+                var buffer = Encoding.UTF8.GetBytes($"{data}\n").AsSpan();
+                var lastIndex = 0;
+                
+                do
+                {
+                    var fragmentBuffer = buffer.Slice(lastIndex, Math.Min(buffer.Length - lastIndex, Consts.DatagramSize + lastIndex)).ToArray();
+                    udpClient.Send(fragmentBuffer, fragmentBuffer.Length, iPEndPoint);
+                    lastIndex += Consts.DatagramSize;
+                } while (lastIndex < buffer.Length);
             }
             catch (Exception e)
             {
@@ -67,22 +77,22 @@ namespace Protocols.UDP
         }
         void ReceiveCommand(Func<string, string> OnCommand, Action<ICommunicator> OnDisconnect)
         {
-            string data = null;
             while (!cts.IsCancellationRequested)
             {
                 try
                 {
-                    
-                    data = Encoding.UTF8.GetString(udpClient.Receive(ref iPEndPoint));
-                    //jezeli nie konczy sie \n to do kolejki i continue
+                    var response = string.Empty;
+                    do
+                    {
+                        response = Encoding.UTF8.GetString(udpClient.Receive(ref iPEndPoint));
+                        queue.Add(iPEndPoint.ToString(), response);
+                    } while (response.Last() != '\n');
 
-                    if (data[data.Length - 1] == '\n') continue;
+                    var result = queue.GetAllMessages(iPEndPoint.ToString());
+                    queue.RemoveAllMessages(iPEndPoint.ToString());
 
-                    //skonczyl sie \n - zlepiamy wiadomosc i obslugujemy
-                    //zlepiona wiadomosc usuwana z slownika (concurrent)
-
-                    logger?.LogSuccess($"[{Protocol}] received command from client[{iPEndPoint}]: {data}");
-                    var res = OnCommand.Invoke(data);
+                    logger?.LogSuccess($"[{Protocol}] received command from client[{iPEndPoint}]: ");
+                    var res = OnCommand.Invoke(result);
                     Send(res);
                 }
                 catch (Exception e)

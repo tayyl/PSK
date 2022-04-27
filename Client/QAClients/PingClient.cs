@@ -21,7 +21,7 @@ namespace Client.QAClients
         {
             var stopwatch = new Stopwatch();
             var requestsTimes = new List<long>();
-            const int requestAmount = 10;
+            const int requestAmount = 1;
 
             var data = dataToSend.Split(' ');
             var clientBytesToSendAmount = data.ElementAtOrDefault(2);
@@ -41,7 +41,7 @@ namespace Client.QAClients
                 var res = ClientCommunicator.ReadLine();
                 stopwatch.Stop();
                 requestsTimes.Add(stopwatch.ElapsedMilliseconds);
-                logger?.LogSuccess($"Received response from server: {res} [{stopwatch.ElapsedMilliseconds}ms]");
+                logger?.LogSuccess($"Received response from server:  [{stopwatch.ElapsedMilliseconds}ms]");
             }
             return $"Send {requestAmount} requests\n mean time to receive response: {requestsTimes.Average()}ms" +
                    $"\n max time to response: {requestsTimes.Max()}ms" +

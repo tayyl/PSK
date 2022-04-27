@@ -16,14 +16,14 @@ namespace Common
                 queue.TryAdd(key, new ConcurrentBag<N>());
             queue[key].Add(value);
         }
-        public string GetAllMessages(T key, bool trimNewLine = true)
+        public string GetAllMessages(T key)
         {
             if (!queue.ContainsKey(key)) return $"{key} is not present in dictionary";
             return string.Join(
                 "",
-                queue[key].Select(x =>
+                queue[key].Reverse().Select(x =>
                     {
-                        return trimNewLine ? x.ToString().TrimEnd('\n') : x.ToString();
+                        return x.ToString();
                     }
                 )
             );
