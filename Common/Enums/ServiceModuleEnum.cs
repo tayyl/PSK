@@ -4,7 +4,7 @@
     {
         ping,
         chat,
-        ftp,
+        file,
         configuration
     }
 }

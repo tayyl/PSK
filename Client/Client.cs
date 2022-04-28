@@ -35,7 +35,7 @@ namespace Client
                             ShowHelp();
                             break;
                         case CommandEnum.ping:
-                        case CommandEnum.ftp:
+                        case CommandEnum.file:
                         case CommandEnum.chat:
                             ProcessCommand(command.command, command.dataToSend);
                             break;
@@ -71,8 +71,8 @@ namespace Client
                     case CommandEnum.ping:
                         qaClient = new PingClient(communicator, logger);
                         break;
-                    case CommandEnum.ftp:
-                        qaClient = new FTPClient(communicator, logger);
+                    case CommandEnum.file:
+                        qaClient = new FileClient(communicator, logger);
                         break;
                     case CommandEnum.chat:
                         qaClient = new ChatClient(communicator, logger);

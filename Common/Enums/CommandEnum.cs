@@ -6,6 +6,6 @@
         protocol,
         ping,
         chat,
-        ftp,
+        file,
     }
 }

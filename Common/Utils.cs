@@ -17,5 +17,15 @@ namespace Common
             }
             return answerString.ToString();
         }
+        public static byte[] TryConvertFromBase64(this string data)
+        {
+            try
+            {
+                return Convert.FromBase64String(data);
+            }catch (Exception ex)
+            {
+                return null;
+            }
+        }
     }
 }

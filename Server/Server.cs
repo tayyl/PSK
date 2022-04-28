@@ -15,7 +15,8 @@ namespace Server {
         List<IServiceModule> services = new List<IServiceModule>()
         {
             new PingServiceModule(),
-            new ChatServiceModule()
+            new ChatServiceModule(),
+            new FileServiceModule(),
         };
         readonly List<IListener> listeners;
         public Server(List<IListener> listeners, ILogger logger)

@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Client.ClientCommunicators
 {
-    public class FTPClientCommunicator : ClientCommunicatorBase
+    public class FileClientCommunicator : ClientCommunicatorBase
     {
-        public FTPClientCommunicator(ILogger logger) : base(logger)
+        public FileClientCommunicator(ILogger logger) : base(logger)
         {
         }
 

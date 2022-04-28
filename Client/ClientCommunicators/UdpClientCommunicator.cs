@@ -10,10 +10,6 @@ using System.Threading.Tasks;
 
 namespace Client.ClientCommunicators
 {
-    //schowek na pakiety - slownik
-    //rozrozniac na \n
-
-    //klient powinien miec jedną kolejkę - moze byc lista 
     public class UdpClientCommunicator : ClientCommunicatorBase
     {
         UdpClient udpClient;
@@ -30,21 +26,22 @@ namespace Client.ClientCommunicators
 
         public override string ReadLine()
         {
-            var response = string.Empty;
+            var result = string.Empty;
             try
             {
+                var response = string.Empty;
                 do
                 {
                     response = Encoding.UTF8.GetString(udpClient.Receive(ref iPEndPoint));
                     queue.Add(iPEndPoint.ToString(), response);
                 } while (response.Last() != '\n');
+                result = queue.GetAllMessages(iPEndPoint.ToString());
+                queue.RemoveAllMessages(iPEndPoint.ToString());
             }
             catch (Exception e)
             {
                 logger?.LogError($"[UdpClientCommunicator] Failed to receive data. Exception {e.Message}");
             }
-            var result = queue.GetAllMessages(iPEndPoint.ToString());
-            queue.RemoveAllMessages(iPEndPoint.ToString());
             return result;
         }
 
