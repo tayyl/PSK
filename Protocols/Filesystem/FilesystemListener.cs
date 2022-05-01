@@ -30,7 +30,7 @@ namespace Protocols.Filesystem
                 {
                     if (!e.FullPath.Contains("-Answer") && !e.FullPath.Contains("-Ready"))
                     {
-                        OnConnect(new FTPCommunicator(e.FullPath, logger));
+                        OnConnect(new FilesystemCommunicator(e.FullPath, logger));
                     }
                 };
             }
