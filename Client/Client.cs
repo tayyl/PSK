@@ -96,6 +96,8 @@ namespace Client
                     return new TcpClientCommunicator(logger);
                 case ProtocolEnum.udp:
                     return new UdpClientCommunicator(logger);
+                case ProtocolEnum.rs232:
+                    return new RS232ClientCommunicator(logger);
                 default: throw new NotImplementedException();
             }
         }

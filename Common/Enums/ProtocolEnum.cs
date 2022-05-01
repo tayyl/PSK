@@ -4,6 +4,9 @@
     {
         none,
         tcp,
-        udp
+        udp,
+        rs232,
+        file,
+        dotnetremoting
     }
 }

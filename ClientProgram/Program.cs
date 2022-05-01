@@ -1,6 +1,5 @@
-﻿
-using Common.Logger;
-using System.Threading.Tasks;
+﻿using Common.Logger;
+using System.IO.Ports;
 
 namespace ClientProgram
 {
@@ -12,7 +11,6 @@ namespace ClientProgram
         {
             var consoleLogger = new ConsoleLogger();
             var client = new Client.Client(consoleLogger);
-
             client.Start();
         }
     }

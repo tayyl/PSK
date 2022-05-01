@@ -1,6 +1,7 @@
 ﻿using Common;
 using Common.Logger;
 using Protocols;
+using Protocols.RS232;
 using Protocols.TCP;
 using Protocols.UDP;
 using System.Collections.Generic;
@@ -19,7 +20,8 @@ namespace ServerProgram
             var listeners = new List<IListener>
             {
                 new TcpListener(Consts.TcpPort, Consts.IpAddress, consoleLogger),
-                new UdpListener(Consts.UdpPort, new IPEndPoint(Consts.IpAddress,Consts.UdpPort+1), consoleLogger)
+                new UdpListener(Consts.UdpPort, new IPEndPoint(Consts.IpAddress,Consts.UdpPort+1), consoleLogger),
+                new RS232Listener(consoleLogger),
             };
             var server = new Server.Server(listeners, consoleLogger);
 
