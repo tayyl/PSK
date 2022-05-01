@@ -27,7 +27,7 @@ namespace Protocols.RS232
             {
                 serialPort = new SerialPort
                 {
-                    PortName = Utils.SetPortName("COM1", logger),
+                    PortName = Utils.SetPortName("COM3", logger),
                     ReadTimeout = 50000,
                     WriteTimeout = 50000,
                 };

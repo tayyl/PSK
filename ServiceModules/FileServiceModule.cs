@@ -14,8 +14,8 @@ namespace ServiceModules
         public ServiceModuleEnum ServiceModule => ServiceModuleEnum.file;
         public FileServiceModule()
         {
-            if (!Directory.Exists(Consts.FTPServerPath))
-                Directory.CreateDirectory(Consts.FTPServerPath);
+            if (!Directory.Exists(Consts.FTPPath))
+                Directory.CreateDirectory(Consts.FTPPath);
         }
         public string AnswerCommand(string command)
         {
@@ -29,17 +29,17 @@ namespace ServiceModules
                 switch (action)
                 {
                     case "list":
-                        var files = Directory.GetFiles(Consts.FTPServerPath);
+                        var files = Directory.GetFiles(Consts.FTPPath);
                         return files.Length == 0 ? "There are no files on server" : string.Join(",", files);
                     case "delete":
-                        File.Delete(Path.Combine(Consts.FTPServerPath, fileName));
+                        File.Delete(Path.Combine(Consts.FTPPath, fileName));
                         return $"File {fileName} deleted successfully";
                     case "get":
-                        var file = File.ReadAllBytes(Path.Combine(Consts.FTPServerPath, fileName));
+                        var file = File.ReadAllBytes(Path.Combine(Consts.FTPPath, fileName));
                         return Convert.ToBase64String(file);
                     case "put":
                         var fileAsBytes = Convert.FromBase64String(fileAsBase64);
-                        File.WriteAllBytes(Path.Combine(Consts.FTPServerPath, fileName), fileAsBytes);
+                        File.WriteAllBytes(Path.Combine(Consts.FTPPath, fileName), fileAsBytes);
                         return $"Successfully saved file {fileName}";
                     default:
                         return $"Not recognized action: {action}. Try: list, delete, get, put";

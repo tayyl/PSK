@@ -6,7 +6,7 @@
         tcp,
         udp,
         rs232,
-        file,
+        filesystem,
         dotnetremoting
     }
 }

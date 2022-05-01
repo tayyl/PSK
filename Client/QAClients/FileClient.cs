@@ -14,8 +14,8 @@ namespace Client.QAClients
     {
         public FileClient(ClientCommunicatorBase clientCommunicator, ILogger logger) : base(clientCommunicator, logger)
         {
-            if (!Directory.Exists(Consts.FTPClientPath))
-                Directory.CreateDirectory(Consts.FTPClientPath);
+            if (!Directory.Exists(Consts.FileServiceClientPath))
+                Directory.CreateDirectory(Consts.FileServiceClientPath);
         }
 
         public override string QA(string dataToSend)
@@ -34,7 +34,7 @@ namespace Client.QAClients
                         request = dataToSend;
                         break;
                     case "put":
-                        var file = File.ReadAllBytes(Path.Combine(Consts.FTPClientPath, fileName));
+                        var file = File.ReadAllBytes(Path.Combine(Consts.FileServiceClientPath, fileName));
                         request = $"{dataToSend} {Convert.ToBase64String(file)}";
                         break;
                     default:
@@ -50,8 +50,8 @@ namespace Client.QAClients
                     var file = response.TryConvertFromBase64();
                     if (file != null)
                     {
-                        File.WriteAllBytes(Path.Combine(Consts.FTPClientPath, fileName), file);
-                        response = $"Successfully downloaded file '{fileName}' to path: {Consts.FTPClientPath}";
+                        File.WriteAllBytes(Path.Combine(Consts.FileServiceClientPath, fileName), file);
+                        response = $"Successfully downloaded file '{fileName}' to path: {Consts.FileServiceClientPath}";
                     }
                 }
                 return response;

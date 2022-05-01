@@ -98,6 +98,8 @@ namespace Client
                     return new UdpClientCommunicator(logger);
                 case ProtocolEnum.rs232:
                     return new RS232ClientCommunicator(logger);
+                case ProtocolEnum.filesystem:
+                    return new FTPClientCommunicator(logger);
                 default: throw new NotImplementedException();
             }
         }
