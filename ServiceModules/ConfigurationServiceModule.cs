@@ -65,6 +65,7 @@ namespace ServiceModules
                         }
                         var toRemove = serviceModules.First(x => x.ServiceModule == serviceModule);
                         serviceModules.Remove(toRemove);
+                        logger?.LogInfo($"{serviceModule} service disabled");
                         return $"{name} service stopped";
                     }
                 case "start-medium":
@@ -93,6 +94,7 @@ namespace ServiceModules
                         var toRemove = listeners.First(x => x.Protocol == protocol);
                         toRemove.Stop();
                         listeners.Remove(toRemove);
+                        logger?.LogInfo($"{protocol} listener stopped");
                         return $"{name} medium stopped sucessfully";
                     }
                     default: return "Unrecognized command, try: start-service, stop-service, start-medium, stop-medium";
@@ -114,6 +116,7 @@ namespace ServiceModules
                 default:
                     return false;
             }
+            logger?.LogInfo($"{serviceModule} service enabled");
             return true;
         }
         bool AddMedium(ProtocolEnum protocol)
@@ -137,6 +140,7 @@ namespace ServiceModules
                     return false;
             }
             listenerToAdd.Start(onConnect);
+            logger?.LogInfo($"{protocol} listener has started");
             listeners.Add(listenerToAdd);
             return true;
         }
