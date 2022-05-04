@@ -7,22 +7,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Server {
+namespace Server
+{
     public class Server
     {
         readonly ILogger logger;
         List<ICommunicator> communicators = new List<ICommunicator>();
-        List<IServiceModule> services = new List<IServiceModule>()
-        {
-            new PingServiceModule(),
-            new ChatServiceModule(),
-            new FileServiceModule(),
-        };
+        List<IServiceModule> services;
         readonly List<IListener> listeners;
         public Server(List<IListener> listeners, ILogger logger)
         {
             this.logger = logger;
             this.listeners = listeners;
+            services = new List<IServiceModule>
+            {
+                new PingServiceModule(),
+                new ChatServiceModule(),
+                new FileServiceModule(),
+                new ConfigurationServiceModule(services, listeners, OnConnect, logger)
+            };
         }
         public void Start()
         {
@@ -51,7 +54,7 @@ namespace Server {
                 }
                 else
                 {
-                    var dataWithoutService = string.Join(" ",data.Split(' ').Skip(1));
+                    var dataWithoutService = string.Join(" ", data.Split(' ').Skip(1));
                     answer = service.AnswerCommand(dataWithoutService);
                 }
             }
