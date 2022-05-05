@@ -17,9 +17,11 @@ namespace Protocols.RS232
         SerialPort serialPort;
         CancellationTokenSource cts;
         readonly ILogger logger;
-        public RS232Listener(ILogger logger)
+        string portName;
+        public RS232Listener(ILogger logger, string portName)
         {
             this.logger = logger;
+            this.portName = portName;
         }
         public void Start(Action<ICommunicator> OnConnect)
         {
@@ -27,25 +29,30 @@ namespace Protocols.RS232
             {
                 serialPort = new SerialPort
                 {
-                    PortName = Utils.SetPortName("COM3", logger),
-                    ReadTimeout = 50000,
-                    WriteTimeout = 50000,
+                    PortName = Utils.SetPortName(portName, logger),
+                    ReadTimeout = 500000,
+                    WriteTimeout = 500000,
                 };
                 cts = new CancellationTokenSource();
                 void CommandListener()
                 {
+                    try
+                    {
+                        while (!cts.IsCancellationRequested)
+                        {
 
-                    while (!cts.IsCancellationRequested)
+                            if (!serialPort.IsOpen)
+                            {
+                                serialPort.Open();
+                                var res = new RS232Communicator(serialPort, logger);
+                                OnConnect?.Invoke(res);
+                            }
+                        }
+                    }catch (Exception ex)
                     {
 
-                        if (!serialPort.IsOpen)
-                        {
-                            serialPort.Open();
-                            var res = new RS232Communicator(serialPort, logger);
-                            OnConnect?.Invoke(res);
-                        }
-
                     }
+                    
                 }
                 Task.Factory.StartNew(CommandListener, cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
             }

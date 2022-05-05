@@ -24,14 +24,16 @@ namespace ServiceModules
         public ServiceModuleEnum ServiceModule => ServiceModuleEnum.configuration;
         IList<IServiceModule> serviceModules;
         IList<IListener> listeners;
+        IList<ICommunicator> communicators;
         Action<ICommunicator> onConnect;
         ILogger logger;
-        public ConfigurationServiceModule(IList<IServiceModule> serviceModules, IList<IListener> listeners, Action<ICommunicator> onConnect, ILogger logger)
+        public ConfigurationServiceModule(IList<IServiceModule> serviceModules, IList<ICommunicator> communicators, IList<IListener> listeners, Action<ICommunicator> onConnect, ILogger logger)
         {
             this.serviceModules = serviceModules;
             this.listeners = listeners;
             this.onConnect = onConnect;
             this.logger = logger;
+            this.communicators = communicators;
         }
         public string AnswerCommand(string command)
         {
@@ -94,7 +96,10 @@ namespace ServiceModules
                         var toRemove = listeners.First(x => x.Protocol == protocol);
                         toRemove.Stop();
                         listeners.Remove(toRemove);
-                        logger?.LogInfo($"{protocol} listener stopped");
+                        var communicatorToRemove = communicators.First(x => x.Protocol == protocol);
+                        communicatorToRemove.Stop();
+                        communicators.Remove(communicatorToRemove);
+                        logger?.LogInfo($"{protocol} medium stopped");
                         return $"{name} medium stopped sucessfully";
                     }
                     default: return "Unrecognized command, try: start-service, stop-service, start-medium, stop-medium";
@@ -128,7 +133,7 @@ namespace ServiceModules
                     listenerToAdd = new FilesystemListener(logger);
                     break;
                 case ProtocolEnum.rs232:
-                    listenerToAdd = new RS232Listener(logger);
+                    listenerToAdd = new RS232Listener(logger,"COM3");
                     break;
                 case ProtocolEnum.tcp:
                     listenerToAdd = new TcpListener(Consts.TcpPort, Consts.IpAddress, logger);

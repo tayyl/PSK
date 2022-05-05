@@ -16,7 +16,7 @@ namespace Client.ClientCommunicators
         {
             serialPort = new SerialPort
             {
-                PortName = Utils.SetPortName("COM2", logger),
+                PortName = Utils.SetPortName(null, logger),
                 ReadTimeout = 50000,
                 WriteTimeout = 50000
             };

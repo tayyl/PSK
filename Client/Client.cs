@@ -35,6 +35,7 @@ namespace Client
                             ShowHelp();
                             break;
                         case CommandEnum.ping:
+                        case CommandEnum.configuration:
                         case CommandEnum.file:
                         case CommandEnum.chat:
                             ProcessCommand(command.command, command.dataToSend);
@@ -76,6 +77,9 @@ namespace Client
                         break;
                     case CommandEnum.chat:
                         qaClient = new ChatClient(communicator, logger);
+                        break;
+                    case CommandEnum.configuration:
+                        qaClient = new ConfigurationClient(communicator, logger);
                         break;
                     default:
                         logger?.LogInfo($"Missing service {command}");

@@ -41,7 +41,7 @@ namespace Client.QAClients
                 var res = ClientCommunicator.ReadLine();
                 stopwatch.Stop();
                 requestsTimes.Add(stopwatch.ElapsedMilliseconds);
-                logger?.LogSuccess($"Received response from server with size: {res.Length} [{stopwatch.ElapsedMilliseconds}ms]");
+                logger?.LogSuccess($"Received response from server with size: {res?.Length} [{stopwatch.ElapsedMilliseconds}ms]");
             }
             return $"Send {requestAmount} requests\n mean time to receive response: {requestsTimes.Average()}ms" +
                    $"\n max time to response: {requestsTimes.Max()}ms" +

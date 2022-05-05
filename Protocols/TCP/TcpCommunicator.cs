@@ -13,7 +13,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Protocols.TCP {
+namespace Protocols.TCP
+{
     public class TcpCommunicator : ICommunicator
     {
         public ProtocolEnum Protocol => ProtocolEnum.tcp;
@@ -48,7 +49,7 @@ namespace Protocols.TCP {
             try
             {
                 cts = new CancellationTokenSource();
-                Task.Factory.StartNew(() =>  ReceiveCommand(OnCommand, OnDisconnect), cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                Task.Factory.StartNew(() => ReceiveCommand(OnCommand, OnDisconnect), cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
             }
             catch (Exception ex)
             {
@@ -66,10 +67,10 @@ namespace Protocols.TCP {
             catch (Exception e)
             {
                 logger?.LogError($"[{ProtocolEnum.tcp}] failed to send data to {iPAddress}:{port}. Exception: {e.Message}");
-                
+
             }
         }
-        void ReceiveCommand(Func<string,string> OnCommand, Action<ICommunicator> OnDisconnect)
+        void ReceiveCommand(Func<string, string> OnCommand, Action<ICommunicator> OnDisconnect)
         {
 
             try
@@ -88,7 +89,7 @@ namespace Protocols.TCP {
                     while (stream.DataAvailable);
 
                     if (command == null) continue;
-                    command=command.Trim('\n');
+                    command = command.Trim('\n');
 
                     logger?.LogSuccess($"[{Protocol}] received command from client[{tcpClient.Client.RemoteEndPoint}]: {command}");
                     var answer = OnCommand?.Invoke(command);
@@ -98,10 +99,14 @@ namespace Protocols.TCP {
                     command = string.Empty;
                 }
             }
+            catch (SocketException e)
+            {
+                if (e.SocketErrorCode != SocketError.Interrupted)
+                    logger?.LogError($"[{Protocol}] Failed to receive data. Exception {e.Message}");
+            }
             catch (Exception e)
             {
                 logger?.LogError($"[{Protocol}] Failed to receive data. Exception {e.Message}");
-                Send(e.Message);
             }
             finally
             {

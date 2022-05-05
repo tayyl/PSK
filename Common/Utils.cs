@@ -31,6 +31,7 @@ namespace Common
         }
         public static string SetPortName(string defaultPortName,ILogger logger)
         {
+            if(!string.IsNullOrEmpty(defaultPortName)) return defaultPortName;
             string portName;
 
             logger.LogInfo("Available serial ports:");

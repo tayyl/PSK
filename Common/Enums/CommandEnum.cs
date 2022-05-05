@@ -7,5 +7,6 @@
         ping,
         chat,
         file,
+        configuration
     }
 }

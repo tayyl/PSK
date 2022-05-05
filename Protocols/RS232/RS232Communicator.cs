@@ -2,6 +2,7 @@
 using Common.Logger;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
@@ -49,6 +50,10 @@ namespace Protocols.RS232
                         serialPort.WriteLine(response);
                     }
                 }
+            }
+            catch (IOException e)
+            {
+                logger?.LogError($"[{Protocol}] Failed to receive data. Exception {e.Message}");
             }
             catch (Exception e)
             {

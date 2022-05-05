@@ -24,8 +24,8 @@ namespace Server
                 new PingServiceModule(),
                 new ChatServiceModule(),
                 new FileServiceModule(),
-                new ConfigurationServiceModule(services, listeners, OnConnect, logger)
             };
+            services.Add(new ConfigurationServiceModule(services, communicators, listeners, OnConnect, logger));
         }
         public void Start()
         {

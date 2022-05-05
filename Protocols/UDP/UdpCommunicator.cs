@@ -61,7 +61,7 @@ namespace Protocols.UDP
             {
                 var buffer = Encoding.UTF8.GetBytes($"{data}\n").AsSpan();
                 var lastIndex = 0;
-                
+
                 do
                 {
                     var fragmentBuffer = buffer.Slice(lastIndex, Math.Min(buffer.Length - lastIndex, Consts.DatagramSize + lastIndex)).ToArray();
@@ -95,10 +95,14 @@ namespace Protocols.UDP
                     var res = OnCommand.Invoke(result);
                     Send(res);
                 }
+                catch (SocketException e)
+                {
+                    if(e.SocketErrorCode != SocketError.Interrupted)
+                    logger?.LogError($"[{Protocol}] Failed to receive data. Exception {e.Message}");
+                }
                 catch (Exception e)
                 {
                     logger?.LogError($"[{Protocol}] Failed to receive data. Exception {e.Message}");
-                    Send(e.Message);
                 }
             }
             OnDisconnect?.Invoke(this);
