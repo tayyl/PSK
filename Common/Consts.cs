@@ -15,7 +15,7 @@ namespace Common
         public const int DatagramSize = 60000;
         public const string FileServiceClientPath = "FTPClient";
         public const string FileServiceServerPath = "FTPServer";
-        public const string FTPPath = "../../../../FTPPath";
+        public const string FilesystemPath = "../../../../Filesystem";
         public static IPAddress IpAddress => IPAddress.Loopback;
     }
 }

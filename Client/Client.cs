@@ -103,7 +103,7 @@ namespace Client
                 case ProtocolEnum.rs232:
                     return new RS232ClientCommunicator(logger);
                 case ProtocolEnum.filesystem:
-                    return new FTPClientCommunicator(logger);
+                    return new FileClientCommunicator(logger);
                 default: throw new NotImplementedException();
             }
         }

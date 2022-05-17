@@ -13,9 +13,9 @@ namespace Protocols.Filesystem
         ILogger logger;
         public FilesystemListener(ILogger logger)
         {
-            if (!Directory.Exists(Consts.FTPPath))
+            if (!Directory.Exists(Consts.FilesystemPath))
             {
-                Directory.CreateDirectory(Consts.FTPPath);
+                Directory.CreateDirectory(Consts.FilesystemPath);
             }
             this.logger = logger;
         }
@@ -24,11 +24,12 @@ namespace Protocols.Filesystem
         {
             try
             {
-                fileSystemWatcher = new FileSystemWatcher(Consts.FTPPath);
+                fileSystemWatcher = new FileSystemWatcher(Consts.FilesystemPath);
                 fileSystemWatcher.EnableRaisingEvents = true;
+
                 fileSystemWatcher.Created += (sender, e) =>
                 {
-                    if (!e.FullPath.Contains("-Answer") && !e.FullPath.Contains("-Ready"))
+                    if (e.FullPath.Contains("Client") && Directory.Exists(e.FullPath))
                     {
                         OnConnect(new FilesystemCommunicator(e.FullPath, logger));
                     }
@@ -36,14 +37,21 @@ namespace Protocols.Filesystem
             }
             catch (Exception ex)
             {
-
                 logger.LogError($"[{Protocol}] listener start failed. Exception: {ex.Message}");
             }
         }
 
         public void Stop()
         {
-            //??
+            try
+            {
+                fileSystemWatcher.Dispose();
+                Directory.Delete(Consts.FilesystemPath, true);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"[{Protocol}] listener stop failed. Exception: {ex.Message}");
+            }
         }
     }
 }

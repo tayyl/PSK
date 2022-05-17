@@ -1,6 +1,7 @@
 ﻿using Common.Logger;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,32 @@ namespace Common
 {
     public static class Utils
     {
+        public static string TryReadAllText(string filePath)
+        {
+            try
+            {
+                return File.ReadAllText(filePath);
+            }
+            catch (IOException ex)
+            {
+                return null;
+            }
+
+        }
+        public static bool IsFileLocked(this FileInfo file)
+        {
+            try
+            {
+                using(var fileStream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    fileStream.Close();
+                }
+            }catch(IOException ex)
+            {
+                return true;
+            }
+            return false;
+        }
         public static string GenerateRandomText(this Random random, int length)
         {
             var answerString = new StringBuilder();

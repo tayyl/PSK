@@ -15,10 +15,6 @@ using System.Threading.Tasks;
 
 namespace ServiceModules
 {
-    //    conf start-service name
-    // conf stop-service name
-    // conf start-medium name
-    // conf stop-medium name
     public class ConfigurationServiceModule : IServiceModule
     {
         public ServiceModuleEnum ServiceModule => ServiceModuleEnum.configuration;
@@ -133,7 +129,7 @@ namespace ServiceModules
                     listenerToAdd = new FilesystemListener(logger);
                     break;
                 case ProtocolEnum.rs232:
-                    listenerToAdd = new RS232Listener(logger,"COM3");
+                    listenerToAdd = new RS232Listener(logger,"COM1");
                     break;
                 case ProtocolEnum.tcp:
                     listenerToAdd = new TcpListener(Consts.TcpPort, Consts.IpAddress, logger);
