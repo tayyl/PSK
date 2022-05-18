@@ -15,8 +15,7 @@ namespace Client.ClientCommunicators
         {
             this.logger = logger;
         }
-        public abstract void WriteLine(string dataToSend);
-        public abstract string ReadLine();
+        public abstract string QA(string dataToSend);
         public abstract void Dispose();
     }
 }

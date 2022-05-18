@@ -42,8 +42,7 @@ namespace Client.QAClients
                         break;
                 }
 
-                ClientCommunicator.WriteLine(request);
-                var response = ClientCommunicator.ReadLine();
+                var response = ClientCommunicator.QA(request);
 
                 if (action == "get")
                 {

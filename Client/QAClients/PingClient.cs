@@ -37,8 +37,7 @@ namespace Client.QAClients
                 logger?.LogInfo($"Sending request with size: {dataToSendToServer.Length} to server");
 
                 stopwatch.Restart();
-                ClientCommunicator.WriteLine(dataToSendToServer);
-                var res = ClientCommunicator.ReadLine();
+                var res = ClientCommunicator.QA(dataToSendToServer);
                 stopwatch.Stop();
                 requestsTimes.Add(stopwatch.ElapsedMilliseconds);
                 logger?.LogSuccess($"Received response from server with size: {res?.Length} [{stopwatch.ElapsedMilliseconds}ms]");

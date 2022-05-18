@@ -24,28 +24,13 @@ namespace Client.ClientCommunicators
             udpClient = new UdpClient(Consts.UdpPort + rand.Next(2, 1000));
         }
 
-        public override string ReadLine()
+        public override void Dispose()
         {
-            var result = string.Empty;
-            try
-            {
-                var response = string.Empty;
-                do
-                {
-                    response = Encoding.UTF8.GetString(udpClient.Receive(ref iPEndPoint));
-                    queue.Add(iPEndPoint.ToString(), response);
-                } while (response.Last() != '\n');
-                result = queue.GetAllMessages(iPEndPoint.ToString());
-                queue.RemoveAllMessages(iPEndPoint.ToString());
-            }
-            catch (Exception e)
-            {
-                logger?.LogError($"[UdpClientCommunicator] Failed to receive data. Exception {e.Message}");
-            }
-            return result;
+            udpClient.Close();
+            udpClient.Dispose();
         }
 
-        public override void WriteLine(string dataToSend)
+        public override string QA(string dataToSend)
         {
             try
             {
@@ -63,12 +48,23 @@ namespace Client.ClientCommunicators
             {
                 logger?.LogError($"[UdpClientCommunicator] failed to send data to {iPEndPoint}. Exception: {e.Message}");
             }
-        }
-
-        public override void Dispose()
-        {
-            udpClient.Close();
-            udpClient.Dispose();
+            var result = string.Empty;
+            try
+            {
+                var response = string.Empty;
+                do
+                {
+                    response = Encoding.UTF8.GetString(udpClient.Receive(ref iPEndPoint));
+                    queue.Add(iPEndPoint.ToString(), response);
+                } while (response.Last() != '\n');
+                result = queue.GetAllMessages(iPEndPoint.ToString());
+                queue.RemoveAllMessages(iPEndPoint.ToString());
+            }
+            catch (Exception e)
+            {
+                logger?.LogError($"[UdpClientCommunicator] Failed to receive data. Exception {e.Message}");
+            }
+            return result;
         }
     }
 }

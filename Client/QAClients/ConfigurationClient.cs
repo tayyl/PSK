@@ -14,10 +14,5 @@ namespace Client.QAClients
         {
         }
 
-        public override string QA(string dataToSend)
-        {
-            ClientCommunicator.WriteLine(dataToSend);
-            return ClientCommunicator.ReadLine();
-        }
     }
 }

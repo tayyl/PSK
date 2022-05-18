@@ -12,7 +12,6 @@ namespace Client.ClientCommunicators
     public class FileClientCommunicator : ClientCommunicatorBase
     {
         Random random = new Random();
-        string fileName = string.Empty;
         readonly string clientId;
         readonly string clientPath;
         public FileClientCommunicator(ILogger logger) : base(logger)
@@ -34,22 +33,20 @@ namespace Client.ClientCommunicators
             Directory.Delete(clientPath, true);
         }
 
-        public override string ReadLine()
+        public override string QA(string dataToSend)
         {
+            var fileName = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + random.Next();
+            File.WriteAllText(Path.Combine(clientPath, fileName), dataToSend);
+
+
             var filePath = Path.Combine(clientPath, fileName + "-Answer");
 
             string response;
             while ((response = Utils.TryReadAllText(filePath)) == null) { }//probuje odczytac, plik moze byc zajety przez proces serwera
-                    
+
             File.Delete(filePath);
 
             return response;
-        }
-
-        public override void WriteLine(string dataToSend)
-        {
-            fileName = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + random.Next();
-            File.WriteAllText(Path.Combine(clientPath, fileName), dataToSend);
         }
     }
 }

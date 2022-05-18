@@ -1,4 +1,6 @@
-﻿using Common.Enums;
+﻿using Common;
+using Common.Enums;
+using Common.Logger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,15 +12,32 @@ namespace Protocols.DotNetRemoting
     public class DotNetRemotingCommunicator : ICommunicator
     {
         public ProtocolEnum Protocol => ProtocolEnum.dotnetremoting;
-
+        ILogger logger;
+        DotNetRemotingObject remoteObject;
+        public DotNetRemotingCommunicator(ILogger logger)
+        {
+            this.logger = logger;
+        }
         public void Start(Func<string, string> OnCommand, Action<ICommunicator> OnDisconnect)
         {
-            throw new NotImplementedException();
+            try
+            {
+                remoteObject = new DotNetRemotingObject(OnCommand);
+            }catch (Exception ex)
+            {
+                OnDisconnect?.Invoke(this);
+            }
         }
 
         public void Stop()
         {
-            throw new NotImplementedException();
+            try
+            {
+
+            }catch (Exception ex)
+            {
+
+            }
         }
     }
 }

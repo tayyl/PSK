@@ -13,11 +13,5 @@ namespace Client.QAClients
         public ChatClient(ClientCommunicatorBase clientCommunicator, ILogger logger) : base(clientCommunicator, logger)
         {
         }
-
-        public override string QA(string dataToSend)
-        {
-            ClientCommunicator.WriteLine(dataToSend);
-            return ClientCommunicator.ReadLine();
-        }
     }
 }

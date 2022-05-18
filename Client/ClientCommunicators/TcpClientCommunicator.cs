@@ -31,8 +31,17 @@ namespace Client.ClientCommunicators
             tcpClient.Dispose();
         }
 
-        public override string ReadLine() 
+        public override string QA(string dataToSend)
         {
+            try
+            {
+                var buffer = Encoding.UTF8.GetBytes($"{dataToSend}\n");
+                tcpClient.GetStream().Write(buffer, 0, buffer.Length);
+            }
+            catch (Exception e)
+            {
+                logger?.LogError($"[TcpClientCommunicator] failed to send data to {iPAddress}:{port}. Exception: {e.Message}");
+            }
             string response = null;
             try
             {
@@ -55,17 +64,5 @@ namespace Client.ClientCommunicators
             return response;
         }
 
-        public override void WriteLine(string dataToSend)
-        {
-            try
-            {
-                var buffer = Encoding.UTF8.GetBytes($"{dataToSend}\n");
-                tcpClient.GetStream().Write(buffer, 0, buffer.Length);
-            }
-            catch (Exception e)
-            {
-                logger?.LogError($"[TcpClientCommunicator] failed to send data to {iPAddress}:{port}. Exception: {e.Message}");
-            }
-        }
     }
 }

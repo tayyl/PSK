@@ -27,18 +27,16 @@ namespace Client.ClientCommunicators
             serialPort.Dispose();
         }
 
-        public override string ReadLine()
+        public override string QA(string dataToSend)
         {
+            if (!serialPort.IsOpen)
+                serialPort.Open();
+            serialPort.WriteLine(dataToSend);
+
             var response = serialPort.ReadLine();
             serialPort.Close();
             return response;
         }
 
-        public override void WriteLine(string dataToSend)
-        {
-            if(!serialPort.IsOpen)
-            serialPort.Open();
-            serialPort.WriteLine(dataToSend);
-        }
     }
 }

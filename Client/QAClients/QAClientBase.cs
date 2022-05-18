@@ -17,6 +17,9 @@ namespace Client.QAClients
             this.logger = logger;
             ClientCommunicator = clientCommunicator;
         }
-        public abstract string QA(string dataToSend);
+        public virtual string QA(string dataToSend)
+        {
+            return ClientCommunicator.QA(dataToSend);
+        }
     }
 }

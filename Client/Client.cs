@@ -104,6 +104,8 @@ namespace Client
                     return new RS232ClientCommunicator(logger);
                 case ProtocolEnum.filesystem:
                     return new FileClientCommunicator(logger);
+                case ProtocolEnum.dotnetremoting:
+                    return new DotNetRemotingClientCommunicator(logger);
                 default: throw new NotImplementedException();
             }
         }
