@@ -21,20 +21,19 @@ namespace Protocols.DotNetRemoting
         }
         public void Start(Action<ICommunicator> OnConnect)
         {
-            RemotingConfiguration.Configure("RemotingServer.xml");
-            OnConnect?.Invoke(new DotNetRemotingCommunicator(logger));
-
+            try
+            {
+                OnConnect?.Invoke(new DotNetRemotingCommunicator(logger));
+            }
+            catch (Exception ex)
+            {
+                logger?.LogError($"[{Protocol}] failed to start .NetRemoting listener: {ex.Message}");
+            }
         }
 
         public void Stop()
         {
-            try
-            {
-                
-            }catch(Exception e)
-            {
 
-            }
         }
     }
 }

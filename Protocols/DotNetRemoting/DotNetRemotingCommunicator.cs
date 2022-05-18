@@ -4,6 +4,9 @@ using Common.Logger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting;
+using System.Runtime.Remoting.Channels;
+using System.Runtime.Remoting.Channels.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,7 +16,8 @@ namespace Protocols.DotNetRemoting
     {
         public ProtocolEnum Protocol => ProtocolEnum.dotnetremoting;
         ILogger logger;
-        DotNetRemotingObject remoteObject;
+        HttpChannel httpChannel;
+        DotNetRemotingObject remotingObject;
         public DotNetRemotingCommunicator(ILogger logger)
         {
             this.logger = logger;
@@ -22,8 +26,13 @@ namespace Protocols.DotNetRemoting
         {
             try
             {
-                remoteObject = new DotNetRemotingObject(OnCommand);
-            }catch (Exception ex)
+                httpChannel = new HttpChannel(Consts.HttpPort);
+                ChannelServices.RegisterChannel(httpChannel, ensureSecurity: false);
+
+                remotingObject = new DotNetRemotingObject(OnCommand, logger);
+                RemotingServices.Marshal(remotingObject, Consts.RemoteServiceName);
+            }
+            catch (Exception ex)
             {
                 OnDisconnect?.Invoke(this);
             }
@@ -33,10 +42,12 @@ namespace Protocols.DotNetRemoting
         {
             try
             {
-
-            }catch (Exception ex)
+                RemotingServices.Disconnect(remotingObject);
+                ChannelServices.UnregisterChannel(httpChannel);
+            }
+            catch (Exception ex)
             {
-
+                logger.LogError($"[{Protocol}] communicator stop failed. Exception: {ex.Message}");
             }
         }
     }

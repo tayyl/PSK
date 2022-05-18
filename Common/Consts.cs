@@ -12,10 +12,12 @@ namespace Common
     {
         public const int TcpPort = 4000;
         public const int UdpPort = 6000;
+        public const int HttpPort = 12343;
         public const int DatagramSize = 60000;
         public const string FileServiceClientPath = "FTPClient";
         public const string FileServiceServerPath = "FTPServer";
         public const string FilesystemPath = "../../../../Filesystem";
+        public const string RemoteServiceName = "RemoteService";
         public static IPAddress IpAddress => IPAddress.Loopback;
     }
 }
