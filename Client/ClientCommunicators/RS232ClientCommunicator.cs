@@ -17,8 +17,9 @@ namespace Client.ClientCommunicators
             serialPort = new SerialPort
             {
                 PortName = Utils.SetPortName(null, logger),
-                ReadTimeout = 50000,
-                WriteTimeout = 50000
+                ReadTimeout = 5000000,
+                WriteTimeout = 5000000,
+                BaudRate = 128_000
             };
         }
 

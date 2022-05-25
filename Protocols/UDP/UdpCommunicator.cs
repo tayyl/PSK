@@ -64,7 +64,7 @@ namespace Protocols.UDP
 
                 do
                 {
-                    var fragmentBuffer = buffer.Slice(lastIndex, Math.Min(buffer.Length - lastIndex, Consts.DatagramSize + lastIndex)).ToArray();
+                    var fragmentBuffer = buffer.Slice(lastIndex, Math.Min(buffer.Length - lastIndex, Consts.DatagramSize)).ToArray();
                     udpClient.Send(fragmentBuffer, fragmentBuffer.Length, iPEndPoint);
                     lastIndex += Consts.DatagramSize;
                 } while (lastIndex < buffer.Length);

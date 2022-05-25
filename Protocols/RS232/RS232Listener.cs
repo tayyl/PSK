@@ -32,6 +32,8 @@ namespace Protocols.RS232
                     PortName = Utils.SetPortName(portName, logger),
                     ReadTimeout = 500000,
                     WriteTimeout = 500000,
+                    BaudRate = 128_000,
+                    
                 };
                 cts = new CancellationTokenSource();
                 void CommandListener()
