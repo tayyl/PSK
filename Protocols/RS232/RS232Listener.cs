@@ -51,7 +51,7 @@ namespace Protocols.RS232
                         }
                     }catch (Exception ex)
                     {
-
+                        logger.LogError($"[{Protocol}] listener failed. Exception: {ex.Message}");
                     }
                     
                 }

@@ -31,11 +31,15 @@ namespace Client.QAClients
             {
                 dataToSendToServer += $" {random.GenerateRandomText(requestSize - dataToSendToServer.Length - 1)}";
             }
+            else
+            {
+                return "Failed to parse command, try ping numberOfBytesToReceive numberOfBytesToSend";
+            }
 
             for (var i = 0; i < requestAmount; i++)
             {
                 logger?.LogInfo($"Sending request with size: {dataToSendToServer.Length} to server");
-               
+
                 stopwatch.Restart();
                 var res = ClientCommunicator.QA(dataToSendToServer);
                 stopwatch.Stop();

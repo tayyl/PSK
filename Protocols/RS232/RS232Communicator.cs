@@ -51,10 +51,6 @@ namespace Protocols.RS232
                     }
                 }
             }
-            catch (IOException e)
-            {
-                logger?.LogError($"[{Protocol}] Failed to receive data. Exception {e.Message}");
-            }
             catch (Exception e)
             {
                 logger?.LogError($"[{Protocol}] Failed to receive data. Exception {e.Message}");
