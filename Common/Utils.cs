@@ -22,21 +22,9 @@ namespace Common
                 return null;
             }
 
+
         }
-        public static bool IsFileLocked(this FileInfo file)
-        {
-            try
-            {
-                using(var fileStream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None))
-                {
-                    fileStream.Close();
-                }
-            }catch(IOException ex)
-            {
-                return true;
-            }
-            return false;
-        }
+   
         public static string GenerateRandomText(this Random random, int length)
         {
             var answerString = new StringBuilder();

@@ -24,7 +24,7 @@ namespace ServerProgram
             {
                 new TcpListener(Consts.TcpPort, Consts.IpAddress, consoleLogger),
                 new UdpListener(Consts.UdpPort, new IPEndPoint(Consts.IpAddress,Consts.UdpPort+1), consoleLogger),
-                new RS232Listener(consoleLogger,"COM1"),
+                new RS232Listener(consoleLogger,"COM2"),
                 new FilesystemListener(consoleLogger),
                 new DotNetRemotingListener(consoleLogger)
             };
